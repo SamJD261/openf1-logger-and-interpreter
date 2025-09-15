@@ -45,4 +45,4 @@ There's a ton of annotations in the code, so hopefully everything makes sense. I
 ## To-Do:
 
 1. Get the interpretation functions to work
-2. <br>
+2. Improve the interface
