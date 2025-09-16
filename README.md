@@ -20,7 +20,10 @@ Here's the modules you'll need to get this to run, and why:
   Purely for aesthetics, but the interactive functions do run off of it so you'll need to redo all of those if you don't want to use this module.
 
 - <b>CSV:</b><br>
-  This isn't being used for anything just yet, but it will be soon to reformat JSON data into CSVs for use in Excel.
+  One of the two modules used by this program to work with CSV files.
+
+- <b>Pandas:</b><br>
+  The second of the two modules used for CSV interpretation.
 
 - <b>OS:</b><br>
   Used for directory management.
@@ -44,5 +47,5 @@ There's a ton of annotations in the code, so hopefully everything makes sense. I
 
 ## To-Do:
 
-1. Get the interpretation functions to work
-2. Improve the interface
+1. Set up the fastest laps interpreter
+2. Improve the interface & generally clean things up
