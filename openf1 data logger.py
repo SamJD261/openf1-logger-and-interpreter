@@ -4,24 +4,19 @@ from urllib.request import urlopen
 
 import csv
 import pandas as pd
-from pandas import read_csv
-
 
 import math
 
 import ssl
 
-from prompt_toolkit.filters import is_done
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.shortcuts import choice
 from prompt_toolkit.styles import Style
-
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import input_dialog
-from prompt_toolkit.shortcuts import button_dialog
 
 
-# stop the program from trying to verify certificates- my school wifi's firewall fucks this code up so i can't run it at school without doing this
+# stop the program from trying to verify certificates- my school wifi's firewall wrecks this code so i can't run it at school without doing this
 ssl_context = ssl._create_unverified_context()
 # pretty sure this is the main thing making the code as slow as it is, so i'd definitely remove it to speed things up, if possible
 # (and also it could be like a MASSIVE security issue, for obvious reasons... so there's that too)
@@ -572,8 +567,9 @@ def getyr2():
 # functions for interpreting existing data
 
 def intptfin(): # first function to make a CSV tally of top 10 finishes by each driver for given season
-    year=prompt("Enter year: ")
-    print(f"Loading {year} calendar")
+    year = input_dialog(
+        title='Top 10 results analyser',
+        text='Enter year to compile data from:').run()
 
     # if calendar exists:
     if os.path.isfile(f"{year}_calendar.json"):
@@ -632,14 +628,17 @@ def intptfin(): # first function to make a CSV tally of top 10 finishes by each 
                     print(f"For {year} {evntnm}, top 10 drivers were: #{p1} in 1st, #{p2} in 2nd, #{p3} in 3rd, #{p4} in 4th, #{p5} in 5th, #{p6} in 6th, #{p7} in 7th, #{p8} in 8th, #{p9} in 9th, and #{p10} in 10th")
 
                     CSVdict(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,year,sk,sumfp, tCSVfp) # second function used to make things a little more organised
+        
+        print("Complete!")
                     
     # if there's no matching calendar:
     else:
         print(f"Can't find calendar for {year}- are you sure you already have that data?")
         print("Returning to homepage...")
-        bettermenu()
-
-
+    
+    bettermenu()
+    
+    
 def CSVdict(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,yr,sk,path,csvp): # write new rows to CSV
     p1r = CSVupdate(p1, 1, 25, csvp)
     p2r = CSVupdate(p2, 2, 18, csvp)
@@ -669,8 +668,6 @@ def CSVdict(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,yr,sk,path,csvp): # write new rows to
 
 
 def CSVupdate(num,pos,pts,csvp): # make amended CSV rows  
-    print(f"p{pos}:")
-    
     df = pd.read_csv(csvp) # load the CSV
     
     # check if given driver number is somewhere in the list
@@ -678,12 +675,9 @@ def CSVupdate(num,pos,pts,csvp): # make amended CSV rows
     # print(f"Occurrences of {num}: {count}")
 
     if count == 0: # if it never shows up then there mustn't be a matching column, and vice versa
-        print(f"Column doesn't exist for #{num}")
         p1 = p2 = p3 = p4 = p5 = p6 = p7 = p8 = p9 = p10 = 0
         
     else:
-        print(f"Column already exists for #{num}")
-
         # read data from CSV row, convert them to integers
         p1 = int(df.loc[df['dn'] == num, '1'].values[0])
         p2 = int(df.loc[df['dn'] == num, '2'].values[0])
@@ -733,15 +727,10 @@ def intfl(): # WIP
     bettermenu()
 
 
-def intwdc():
-    print("This section is incomplete. Returning home...")
-    bettermenu()
-
-
 
 # onto the main section of code...
 
-print("F1 DATA LOGGER AND INTERPRETER") # this is all totally unnecessary, just some "opening credits" type shit
+print("F1 DATA LOGGER AND INTERPRETER") # this is all totally unnecessary, just some "opening credits" per se
 print("Powered by OpenF1 API (www.openf1.org)")
 print("Sam Matthews, 2025")
 print("Version 1.0")
