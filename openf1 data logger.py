@@ -1,10 +1,16 @@
 import json
 import os
-import csv
-
 from urllib.request import urlopen
+
+import csv
+import pandas as pd
+from pandas import read_csv
+
+
 import math
+
 import ssl
+
 from prompt_toolkit.filters import is_done
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.shortcuts import choice
@@ -13,6 +19,7 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import input_dialog
 from prompt_toolkit.shortcuts import button_dialog
+
 
 # stop the program from trying to verify certificates- my school wifi's firewall fucks this code up so i can't run it at school without doing this
 ssl_context = ssl._create_unverified_context()
@@ -86,33 +93,28 @@ def intexhome(): # WIP -- interpret existing data into simple .CSVs, which can t
     # print("Interpretation function is yet to be developed. Returning home...")
     # bettermenu()
 
-    print("NOTE: this is a WIP")
-
     style = Style.from_dict(
     {
-        "frame.border": "#ff0000",
-        "selected-option": "fg:#ff4444 bold",
+        "frame.border": "#0022ff",
+        "selected-option": "fg:#75b7ff bold",
     }
     )
 
     function = choice(
-    message=HTML("DATA INTERPRETER MENU (WIP)"),
+    message=HTML("DATA INTERPRETER MENU (beta)"),
     options=[
-        ("wdc", "Overall driver standings (points)"),
-        ("fl", "Fastest laps"),
-        ("wins", "Overall driver wins")
+        ("wins", "Overall top 10 finishes & points"),
+        ("fl", "Fastest laps [UNDEVELOPED]")
     ],
     style=style,
     show_frame=True,
     default="dln",
     )
 
-    if function == "wdc":
-        intwdc()
-    elif function == "fl":
+    if function == "fl":
         intfl()
     elif function == "wins":
-        intwins()
+        intptfin()
 
 
 def scan(): # WIP -- scan thru existing data
@@ -569,13 +571,8 @@ def getyr2():
 
 # functions for interpreting existing data
 
-def intwins(): # WIP
-    print("This section is incomplete. Returning home...")
-    bettermenu()
-    
-
-
-    year=prompt("Step 1: Enter year: ")
+def intptfin(): # first function to make a CSV tally of top 10 finishes by each driver for given season
+    year=prompt("Enter year: ")
     print(f"Loading {year} calendar")
 
     # if calendar exists:
@@ -588,51 +585,149 @@ def intwins(): # WIP
         print(f"{numraces} races found in {year} calendar, reading their info now...")
 
         # check if season CSV tally already exists, delete it if it does:
-        tallyfp = (f'{year}/wintally.csv')
-        if os.path.isfile(tallyfp):
-            os.remove(tallyfp)
+        tCSVfp = (f'{year}/points_tally.csv')
+        if os.path.isfile(tCSVfp):
+            os.remove(tCSVfp)
         else:
             pass
 
         # create tally CSV
-        header = ['driver number', 'win count'] # make a column containing every driver number, and another one with the number 0 next to every driver titled "win count"
+        header = ['dn', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 'pts'] # header
+        wdc = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # reigning champion
+
+        with open(tCSVfp, 'w', encoding='UTF8', newline='') as f:
+            writer = csv.writer(f)
+
+            # write the rows
+            writer.writerow(header)
+            writer.writerow(wdc)
+
     
-        search = urlopen(f'{BASE_URL}sessions?meeting_key={meetid}', context=ssl_context) # talk to the api to grab session keys
-        info = json.loads(search.read().decode('utf-8'))
+        for i in calendar:
+            meetid = i['meeting_key']
+            search = urlopen(f'{BASE_URL}sessions?meeting_key={meetid}', context=ssl_context) # talk to the api to grab session keys
+            info = json.loads(search.read().decode('utf-8'))
 
-        evntnm=i['meeting_name']
+            evntnm=i['meeting_name']
 
-        # checking through for sessions within each event for marked races (excludes pre-season testing, which is technically "free practice")
-        for i in info:
-            if i['session_name'] == "Race":
-                sk=i['session_key']
-                sumfp = (f'{year}/{meetid}/{sk}_info.json') # look at info JSONs for every race
-                for i in sumfp:
-                    p1 = i['p1']
-                    p2 = i['p2']
-                    p3 = i['p3']
-                    p4 = i['p4']
-                    p5 = i['p5']
-                    p6 = i['p6']
-                    p7 = i['p7']
-                    p8 = i['p8']
-                    p9 = i['p9']
-                    p10 = i['p10']
+            # checking through for sessions within each event for marked races (excludes pre-season testing, which is technically "free practice")
+            for i in info:
+                if i['session_name'] == "Race":
+                    sk=i['session_key']
+                    
+                    sumfp = (f'{year}/{meetid}/{sk}_info.json')
+                    rcinfo = json.loads(open(sumfp).read()) # look at info JSONs for every race
+                    for i in rcinfo:
+                        p1 = i['p1']
+                        p2 = i['p2']
+                        p3 = i['p3']
+                        p4 = i['p4']
+                        p5 = i['p5']
+                        p6 = i['p6']
+                        p7 = i['p7']
+                        p8 = i['p8']
+                        p9 = i['p9']
+                        p10 = i['p10']
                 
-                print(f"For {year} {evntnm}, top 10 drivers were:")
-                print(f'#{p1} in 1st, #{p2} in 2nd, #{p3} in 3rd, #{p4} in 4th, #{p5} in 5th, #{p6} in 6th, #{p7} in 7th, #{p8} in 8th, #{p9} in 9th, and #{p10} in 10th')
+                    print(f"For {year} {evntnm}, top 10 drivers were: #{p1} in 1st, #{p2} in 2nd, #{p3} in 3rd, #{p4} in 4th, #{p5} in 5th, #{p6} in 6th, #{p7} in 7th, #{p8} in 8th, #{p9} in 9th, and #{p10} in 10th")
 
-                # add 1 to the win count value for the driver who won (e.g. if Piastri wins his first race of the season, his win count should go from 0 to 1)
-
-
-
-    
+                    CSVdict(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,year,sk,sumfp, tCSVfp) # second function used to make things a little more organised
+                    
     # if there's no matching calendar:
     else:
         print(f"Can't find calendar for {year}- are you sure you already have that data?")
         print("Returning to homepage...")
         bettermenu()
+
+
+def CSVdict(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,yr,sk,path,csvp): # write new rows to CSV
+    p1r = CSVupdate(p1, 1, 25, csvp)
+    p2r = CSVupdate(p2, 2, 18, csvp)
+    p3r = CSVupdate(p3, 3, 15, csvp)
+    p4r = CSVupdate(p4, 4, 12, csvp)
+    p5r = CSVupdate(p5, 5, 10, csvp)
+    p6r = CSVupdate(p6, 6, 8, csvp)
+    p7r = CSVupdate(p7, 7, 6, csvp)
+    p8r = CSVupdate(p8, 8, 4, csvp)
+    p9r = CSVupdate(p9, 9, 2, csvp)
+    p10r = CSVupdate(p10, 10, 1, csvp)
+
+    with open(csvp, 'a', encoding='UTF8', newline='') as f:
+            writer = csv.writer(f)
+
+            # write the rows
+            writer.writerow(p1r)
+            writer.writerow(p2r)
+            writer.writerow(p3r)
+            writer.writerow(p4r)
+            writer.writerow(p5r)
+            writer.writerow(p6r)
+            writer.writerow(p7r)
+            writer.writerow(p8r)
+            writer.writerow(p9r)
+            writer.writerow(p10r)
+
+
+def CSVupdate(num,pos,pts,csvp): # make amended CSV rows  
+    print(f"p{pos}:")
     
+    df = pd.read_csv(csvp) # load the CSV
+    
+    # check if given driver number is somewhere in the list
+    count = df['dn'].value_counts().get(num, 0) # count how many times the driver number shows up in the CSV
+    # print(f"Occurrences of {num}: {count}")
+
+    if count == 0: # if it never shows up then there mustn't be a matching column, and vice versa
+        print(f"Column doesn't exist for #{num}")
+        p1 = p2 = p3 = p4 = p5 = p6 = p7 = p8 = p9 = p10 = 0
+        
+    else:
+        print(f"Column already exists for #{num}")
+
+        # read data from CSV row, convert them to integers
+        p1 = int(df.loc[df['dn'] == num, '1'].values[0])
+        p2 = int(df.loc[df['dn'] == num, '2'].values[0])
+        p3 = int(df.loc[df['dn'] == num, '3'].values[0])
+        p4 = int(df.loc[df['dn'] == num, '4'].values[0])
+        p5 = int(df.loc[df['dn'] == num, '5'].values[0])
+        p6 = int(df.loc[df['dn'] == num, '6'].values[0])
+        p7 = int(df.loc[df['dn'] == num, '7'].values[0])
+        p8 = int(df.loc[df['dn'] == num, '8'].values[0])
+        p9 = int(df.loc[df['dn'] == num, '9'].values[0])
+        p10 = int(df.loc[df['dn'] == num, '10'].values[0])
+        expts = int(df.loc[df['dn'] == num, 'pts'].values[0])
+        pts = expts + pts # add gained points to existing points
+        
+        # delete old row from the CSV so that it can be replaced with the new one later
+        df = df.drop(df[df['dn'] == num].index)
+        df.to_csv(csvp, index=False)
+
+    # add 1 to the cell for whichever position was achieved
+    if pos == 1:
+        p1 = p1 + 1
+    elif pos == 2:
+        p2 = p2 + 1
+    elif pos == 3:
+        p3 = p3 + 1
+    elif pos == 4:
+        p4 = p4 + 1
+    elif pos == 5:
+        p5 = p5 + 1
+    elif pos == 6:
+        p6 = p6 + 1
+    elif pos == 7:
+        p7 = p7 + 1
+    elif pos == 8:       
+        p8 = p8 + 1
+    elif pos == 9:
+        p9 = p9 + 1
+    elif pos == 10:
+        p10 = p10 + 1
+        
+    newcol = [num, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, pts]
+    return newcol
+
+
 def intfl(): # WIP
     print("This section is incomplete. Returning home...")
     bettermenu()
@@ -649,6 +744,6 @@ def intwdc():
 print("F1 DATA LOGGER AND INTERPRETER") # this is all totally unnecessary, just some "opening credits" type shit
 print("Powered by OpenF1 API (www.openf1.org)")
 print("Sam Matthews, 2025")
-print("Version 0.1 (Beta)")
+print("Version 1.0")
 
 bettermenu()
