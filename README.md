@@ -32,7 +32,7 @@ Here's the modules you'll need to get this to run, and why:
 ## Usage:
 It's pretty simple, all you need to do is this:
 
-1. Select the function you want to use in the home menu (right now only the "download data" option actually works)
+1. Select the function you want to use in the home menu
 2. Input the parameters that the program asks for
 3. Wait for it to finish doing whatever you want it to do (this might take a while, so be patient and make sure to clear your schedule)
 
