@@ -19,7 +19,7 @@ from prompt_toolkit.shortcuts import input_dialog
 # stop the program from trying to verify certificates- my school wifi's firewall wrecks this code so i can't run it at school without doing this
 ssl_context = ssl._create_unverified_context()
 # pretty sure this is the main thing making the code as slow as it is, so i'd definitely remove it to speed things up, if possible
-# (and also it could be like a MASSIVE security issue, for obvious reasons... so there's that too)
+# (it could also pose a substantial security risk, so keep that in mind as well)
 
 BASE_URL = "https://api.openf1.org/v1/"
 
