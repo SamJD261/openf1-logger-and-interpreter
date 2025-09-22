@@ -42,7 +42,7 @@ It's pretty simple, all you need to do is this:
 - Only the download function works currently (as previously mentioned). This will be sorted very soon- there's NO way I'm gonna port all that JSON data through to Excel manually. That said, it'll just take you back to the homepage if you do try to run an incomplete function for whatever reason (even though I have made it <i>very</i> clear what is and isn't complete in the interface itself).
 
 
-There's a ton of annotations in the code, so hopefully everything makes sense. If not, let me know- I'll probably be just as clueless as you, but maybe I'll surprise myself.
+There's a ton of annotations in the code, so hopefully everything makes sense. If not, let me know and I'll take a look when I have time.
 
 
 ## To-Do:
